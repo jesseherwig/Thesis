@@ -322,7 +322,7 @@ class Population:
 
     def load_sample(self):
 
-        with open('citizens.txt', 'r') as f:
+        with open('citizens_old.txt', 'r') as f:
             lines = f.readlines()
             for line in lines:
                 line = line.strip()

@@ -21,3 +21,5 @@ dose_space = {'astraZeneca': 90,
               'moderna': 21}
 
 day = 1
+
+size = 1000000

@@ -27,7 +27,7 @@ def generate_links(citzen_num, maximum):
 
 if __name__ == '__main__':
     number = 1000
-    with open('citizens.txt', 'w') as f:
+    with open('citizens_old.txt', 'w') as f:
         with open('links.txt', 'w') as g:
             for n in range(number):
                 f.write(generate_citizen())
