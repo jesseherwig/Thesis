@@ -322,14 +322,15 @@ class Population:
 
     def load_sample(self):
 
-        with open('citizens_old.txt', 'r') as f:
+        with open('citizens.txt', 'r') as f:
             lines = f.readlines()
             for line in lines:
                 line = line.strip()
+                print(line)
                 (sex, age) = line.split(',')
                 self.addCitizen(Citizen(int(age), sex))
             f.close()
-        with open('links.txt', 'r') as f:
+        with open('links_parallel.txt', 'r') as f:
             lines = f.readlines()
             for line in lines:
                 line = line.strip()
@@ -435,7 +436,7 @@ class Population:
 
     def string_stats(self):
         stats = '\nDay: ' + str(config.day) + '\nCitizens: ' \
-                + str(len(self.citizens)) + '\nTotal Infections: ' + str(len(self.infected)) \
+                + str(len(self.citizens)) + '\nTotal Infections: ' + str(len(self.infected) + len(self.map['recovered']) + len(self.map['deceased'])) \
                 + '\n-----States-----' + '\nSusceptible: ' + str(len(self.map['susceptible'])) \
                 + '\nIncubating: ' + str(len(self.map['incubating'])) + '\nContagious: ' \
                 + str(len(self.map['contagious'])) + '\nRecovered: ' + str(len(self.map['recovered'])) \
