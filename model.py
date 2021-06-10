@@ -323,19 +323,23 @@ class Population:
     def load_sample(self):
 
         with open('citizens.txt', 'r') as f:
+            print('load citizens')
             lines = f.readlines()
             for line in lines:
-                line = line.strip()
-                print(line)
-                (sex, age) = line.split(',')
-                self.addCitizen(Citizen(int(age), sex))
+                if line != '':
+                    line = line.strip()
+                    (sex, age) = line.split(',')
+                    self.addCitizen(Citizen(int(age), sex))
             f.close()
+        print('done')
         with open('links_parallel.txt', 'r') as f:
             lines = f.readlines()
             for line in lines:
-                line = line.strip()
-                (source, destination, weight) = line.split(',')
-                self.addLink(Link(self.citizens[int(source)],self.citizens[int(destination)], float(weight)))
+                if line != '':
+                    line = line.strip()
+                    (source, destination, weight) = line.split(',')
+                    self.addLink(Link(self.citizens[int(source)],self.citizens[int(destination)], float(weight)))
+        print('Done links')
 
     def addCitizen(self, citizen: Citizen):
         self.citizens.append(citizen)
