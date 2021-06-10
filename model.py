@@ -337,6 +337,7 @@ class Population:
             for line in lines:
                 if line != '':
                     line = line.strip()
+                    print(line)
                     (source, destination, weight) = line.split(',')
                     self.addLink(Link(self.citizens[int(source)],self.citizens[int(destination)], float(weight)))
         print('Done links')
