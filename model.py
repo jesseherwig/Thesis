@@ -126,9 +126,10 @@ class Citizen:
         return self.unisolating
 
     def unisolationHelper(self, link, citizen):
-        if citizen.getIsolation_date() == self.isolation_date and not citizen.isUnisolating():
-            link.setStatus(True)
-            citizen.unisolate()
+        if not citizen.isUnisolating():
+            if citizen.getIsolation_date() == self.isolation_date:
+                link.setStatus(True)
+                citizen.unisolate()
 
     def unisolate(self):
         self.unisolating = True
