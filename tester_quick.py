@@ -12,10 +12,10 @@ if __name__ == "__main__":
     open('results_quick.txt', 'w')
     with open('results_quick.txt', 'a') as f:
         while config.day < 80:
-            config.day += 1
             population.advanceTime()
-            #population.print_stats()
+            population.print_stats()
             f.write(population.string_stats())
+            config.day += 1
         f.close()
     with open('results_final_quick.txt', 'w') as f:
         f.write(population.string_stats())
