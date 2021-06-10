@@ -24,6 +24,9 @@ class Citizen:
         self.mitigationFactor = mitigationFactor or 0
         self.infection_date = infection_date or None
         self.vaccination_date = None
+        if vaccine:
+            self.vaccination_date = config.dose_space[vaccine]
+            self.immunity = config.vaccines[vaccine + '_full']
         self.isolation_date = None
         self.forwardLinks = []
         self.backLinks = []
@@ -296,8 +299,11 @@ def select_vaccine(citizen: Citizen):
 def load_citizens(line):
     if line != '':
         line = line.strip()
-        (sex, age, vaccine) = line.split(',')
-        return Citizen(int(age), sex, vaccine=vaccine,)
+        sex, age, *vaccine = line.split(',')
+        if vaccine:
+            return Citizen(int(age), sex, vaccine=vaccine)
+        else:
+            return Citizen(int(age), sex)
     return None
 
 def load_links(line):
