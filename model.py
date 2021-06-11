@@ -26,7 +26,6 @@ class Citizen:
         self.forwardLinks = []
         self.backLinks = []
         self.toIsolate = False
-        self.unisolating = False
         self.unisolatedState = None
         self.chance = 0.05
 
@@ -115,6 +114,7 @@ class Citizen:
             link.setStatus(False)
         self.isolation_date = config.day
         self.unisolatedState = self.state
+        self.toIsolate = True
 
     def isolateContacts(self):
         for link in self.forwardLinks:
@@ -122,23 +122,6 @@ class Citizen:
                 dest: Citizen = link.getDestination()
                 dest.isolate()
 
-    def isUnisolating(self):
-        return self.unisolating
-
-    def unisolationHelper(self, link, citizen):
-        if not citizen.isUnisolating():
-            if citizen.getIsolation_date() == self.isolation_date:
-                link.setStatus(True)
-                citizen.unisolate()
-
-    def unisolate(self):
-        self.unisolating = True
-        for link in self.forwardLinks:
-            dest: Citizen = link.getDestination()
-            self.unisolationHelper(link, dest)
-        for link in self.backLinks:
-            source: Citizen = link.getSource()
-            self.unisolationHelper(link, source)
 
     def death(self):
         self.state = 'deceased'
@@ -152,11 +135,9 @@ class Citizen:
             self.state = 'isolated'
             self.toIsolate = False
             return self.state
-        elif self.unisolating:
-            self.state = self.unisolatedState
-            self.unisolating = False
-        method = getattr(self, self.state)
-        return method()
+        else:
+            method = getattr(self, self.state)
+            return method()
 
     def susceptible(self):
         pass
@@ -200,7 +181,6 @@ class Citizen:
 
     def isolated(self):
         if config.day - self.isolation_date >= config.parameters['isolationTime']:
-            self.unisolate()
             self.state = self.unisolatedState
         return self.state
 
