@@ -1,21 +1,21 @@
 
 Day: 365
-Citizens: 1000
-Total Infections: 903
+Citizens: 10000
+Total Infections: 10235
 -----States-----
-Susceptible: 103
+Susceptible: 39
 Incubating: 0
 Contagious: 0
-Recovered: 586
-Deceased: 291
+Recovered: 8347
+Deceased: 1614
 Hospitalised: 0
-Isolated:  20
+Isolated:  0
 -------------------------------
 Vaccines:
 AstraZeneca: 
-Half: 88  Full: 199
+Half: 934  Full: 1911
 Pfizer: 
-Half: 149  Full: 231
+Half: 1508  Full: 2111
 Moderna: 
-Half: 134  Full: 199
+Half: 1449  Full: 2087
 -------------------------------

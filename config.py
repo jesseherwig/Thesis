@@ -6,8 +6,8 @@ parameters = {
     'contagiousTime': 7,
     'hospitalisedRecovery': 19,
     'isolationTime': 14,
-    'daily_vac_number': 10,
-    'tests': {'max': 3 ,
+    'daily_vac_number': 100,
+    'tests': {'max': 3,
               'min': 1}
 }
 vaccines = {'astraZeneca_half': 0.641,
@@ -22,4 +22,4 @@ dose_space = {'astraZeneca': 90,
 
 day = 1
 
-size = 1000000
+size = 10000

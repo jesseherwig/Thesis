@@ -19,6 +19,6 @@ def generate_citizen(n):
 if __name__ == '__main__':
     with multiprocessing.Pool(multiprocessing.cpu_count()) as p:
         string = p.map(generate_citizen, range(number))
-    with open('citizens_parallel.txt', 'w') as f:
+    with open('citizens_10000.txt', 'w') as f:
         f.writelines(string)
         f.close()
