@@ -13,6 +13,38 @@ from random import sample, choice, choices, randrange
 from random import random as rand
 
 
+def try_death(age,sex):
+    if age < 60:
+        i = '<60'
+    elif age >= 80:
+        i = '80+'
+    else:
+        if age < 70:
+            i = '60-69'
+        else:
+            i = '70-79'
+    if rand() < config.parameters['deathFactor'][sex][i]:
+        return True
+    else:
+        return False
+
+def try_hospital(age):
+    if age < 5:
+        i = '0-4'
+    elif age >= 65:
+        i = '65+'
+    elif age < 18:
+        i = '5-17'
+    elif age < 50:
+        i = '18-49'
+    else:
+        i = '50-64'
+    if rand() < config.parameters['hospitalisationFactor'][i]/100000:
+        return True
+    else:
+        return False
+
+
 class Citizen:
 
     def __init__(self, age, sex, state=None, vaccine=None, immunity=None, mitigationFactor=None, infection_date=None):
@@ -32,7 +64,6 @@ class Citizen:
         self.chance = 0.05
         self.max_infected = randrange(config.parameters['r']['min'], config.parameters['r']['max'])
         self.num_infected = 0
-
 
     def addForwardLink(self, link):
         assert isinstance(link, Link)
@@ -185,10 +216,10 @@ class Citizen:
 
     def contagious(self):
         from random import random as rand
-        if rand() < self.age * 0.01 * config.parameters['hospitalisationFactor']:
+        if try_hospital(self.age):
             self.state = 'hospitalised'
             self.isolateContacts()
-        elif rand() < self.age * 0.01 * config.parameters['deathFactor']:
+        elif try_death(self.age, self.sex):
             self.death()
         if config.day - self.infection_date > config.parameters['standardRecovery'] and rand() < self.chance:
             self.state = 'recovered'
@@ -196,10 +227,8 @@ class Citizen:
 
     def hospitalised(self):
         from random import random as rand
-        if rand() < self.age * 0.01 * config.parameters['deathFactor']:  # roll for death
-            if rand() > self.immunity:  # Vaccinated
-                self.state = 'deceased'
-                self.death()
+        if try_death(self.age, self.sex):  # roll for death
+            self.death()
         elif config.day - self.infection_date > config.parameters['hospitalisedRecovery'] and rand() < self.chance:
             self.state = 'recovered'
         else:
@@ -342,7 +371,7 @@ class Population:
 
     def load_sample(self):
 
-        with open('citizens_10000.txt', 'r') as f:
+        with open(config.citizen_source, 'r') as f:
             print('load citizens')
             lines = f.readlines()
             self.size = len(lines)
@@ -353,7 +382,7 @@ class Population:
                     self.addCitizen(Citizen(int(age), sex))
             f.close()
         print('done')
-        with open('links_1000.txt', 'r') as f:
+        with open(config.links_source, 'r') as f:
             lines = f.readlines()
             for line in lines:
                 if line != '':
@@ -361,7 +390,7 @@ class Population:
                     (source, destination, weight) = line.split(',')
                     self.addLink(Link(self.citizens[int(source)], self.citizens[int(destination)], float(weight)))
         print('Done links')
-        superspreaders = sample(self.citizens, round(config.parameters['superspreaders']/100*self.size))
+        superspreaders = sample(self.citizens, round(config.parameters['superspreaders'] / 100 * self.size))
         for citizen in superspreaders:
             citizen.setMaxInfected(len(citizen.getForwardLinks()))
 
@@ -443,7 +472,7 @@ class Population:
 
         # Testing
         testNumber = randrange(config.parameters['tests']['min'], config.parameters['tests']['max']) \
-                     + round(self.last_infected*(self.size/100))
+                     + round(self.last_infected * (self.size / 100))
         if testNumber > config.parameters['tests']['extreme_max']:
             testNumber = config.parameters['tests']['extreme_max']
         self.last_infected = infected

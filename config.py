@@ -1,18 +1,32 @@
 parameters = {
     'size': 1000000,
-    'hospitalisationFactor' : 0.1,
-    'deathFactor': 0.1 ,
+    'hospitalisationFactor': {
+        '0-4': 0.3,
+        '5-17': 0.1,
+        '18-49': 2.5,
+        '50-64': 7.4,
+        '65+': 13.8,
+
+    },
+    'deathFactor': {
+        'male': {'<60': 0.0000305,
+                 '60-69': 0.0003865,
+                 '70-79': 0.0012566,
+                 '80+': 0.00475087},
+        'female': {'<60': 0.0000139,
+                   '60-69': 0.00015749,
+                   '70-79': 0.00056988,
+                   '80+': 0.00316181}
+    },
     'globalInfectionFactor': 1,
     'standardRecovery': 14,
     'contagiousTime': 7,
     'hospitalisedRecovery': 19,
     'isolationTime': 14,
     'daily_vac_number': 10,
-    'tests': {'max': 3 ,
-              'min': 1,
-              'extreme_max': 100},
+    'tests': dict(max=3, min=1, extreme_max=15),
     'r': {'min': 2,
-         'max': 6},
+          'max': 6},
     'superspreaders': 1
 }
 vaccines = {'astraZeneca_half': 0.641,
@@ -20,9 +34,14 @@ vaccines = {'astraZeneca_half': 0.641,
             'pfizer_half': 0.52,
             'pfizer_full': 0.95,
             'moderna_half': 0.61,
-            'moderna_full':0.945}
+            'moderna_full': 0.945}
 dose_space = {'astraZeneca': 90,
               'pfizer': 21,
               'moderna': 21}
 
-day = 1
+day = 0
+
+citizen_source = 'citizens_old.txt'
+links_source = 'links.txt'
+
+
