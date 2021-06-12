@@ -2,11 +2,8 @@ import csv
 
 import config
 
+import multiprocessing as mp
 
-def chain(*lists):
-    for alist in lists:
-        for element in alist:
-            yield element
 
 
 from random import sample, choice, choices, randrange
@@ -56,6 +53,9 @@ class Citizen:
         self.mitigationFactor = mitigationFactor or 0
         self.infection_date = infection_date or None
         self.vaccination_date = None
+        if vaccine:
+            self.vaccination_date = config.dose_space[vaccine]
+            self.immunity = config.vaccines[vaccine + '_full']
         self.isolation_date = None
         self.forwardLinks = []
         self.backLinks = []
@@ -328,6 +328,24 @@ def select_vaccine(citizen: Citizen):
     else:
         return choices(('pfizer', 'moderna'), weights=[51, 50], k=1)
 
+def load_citizens(line):
+    if line != '':
+        line = line.strip()
+        sex, age, *vaccine = line.split(',')
+        if vaccine:
+            return Citizen(int(age), sex, vaccine=vaccine)
+        else:
+            return Citizen(int(age), sex)
+    return None
+
+def load_links(line):
+    if line != '':
+        line = line.strip()
+        print(line)
+        (source, destination, weight) = line.split(',')
+        return [source, destination, weight]
+    return None
+
 
 class Population:
 
@@ -370,19 +388,18 @@ class Population:
         self.size = 0
 
     def load_sample(self):
-
-        with open(config.citizen_source, 'r') as f:
+        with mp.Pool(mp.cpu_count()) as p:
             print('load citizens')
-            lines = f.readlines()
-            self.size = len(lines)
-            for line in lines:
-                if line != '':
-                    line = line.strip()
-                    (sex, age) = line.split(',')
-                    self.addCitizen(Citizen(int(age), sex))
-            f.close()
-        print('done')
-        with open(config.links_source, 'r') as f:
+            with open(config.citizen_source, 'r') as f:
+                lines = f.readlines()
+                f.close()
+            citizens = p.map(load_citizens, lines)
+            self.size = len(citizens)
+            self.addCitizenList(citizens)
+            print('done')
+            p.close()
+            p.join()
+        with open('links_parallel.txt', 'r') as f:
             lines = f.readlines()
             for line in lines:
                 if line != '':
