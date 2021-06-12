@@ -27,7 +27,8 @@ def generate_citizen(n):
 
 
 if __name__ == '__main__':
-    with multiprocessing.Pool() as p:
-        string = p.map(generate_citizen, range(config.parameters['size']))
+    #with multiprocessing.Pool(multiprocessing.cpu_count()) as p:
+    #string = p.map(generate_citizen, range(config.parameters['size']))
     with open(config.citizen_source, 'w') as f:
-        f.writelines(string)
+        for i in range(config.parameters['size']):
+            f.write(generate_citizen(i))

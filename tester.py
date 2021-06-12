@@ -4,7 +4,7 @@ import config
 
 import os
 
-output_files = '100K_5K_init_none'
+output_files = '100K_500_init_none'
 
 
 config.citizen_source = 'citizens_100k.txt'
@@ -21,4 +21,4 @@ if __name__ == '__main__':
     with open(output_files + 'count.txt', 'w') as f:
         f.write(str(count))
     output_files += str(count)
-    tester(output_files, runtime, 5000)
+    tester(output_files, runtime, 500)
