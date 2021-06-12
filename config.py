@@ -1,5 +1,5 @@
 parameters = {
-    'size': 1000000,
+    'size': 50000,
     'hospitalisationFactor': {
         '0-4': 0.3,
         '5-17': 0.1,
@@ -18,15 +18,14 @@ parameters = {
                    '70-79': 0.00056988,
                    '80+': 0.00316181}
     },
-    'globalInfectionFactor': 1,
+    'r': {'min': 2,
+          'max': 6},
     'standardRecovery': 14,
     'contagiousTime': 7,
     'hospitalisedRecovery': 19,
     'isolationTime': 14,
-    'daily_vac_number': 0,
+    'daily_vac_number': 0.4,
     'tests': dict(max=3, min=1, extreme_max=15),
-    'r': {'min': 2,
-          'max': 6},
     'superspreaders': 1
 }
 vaccines = {'astraZeneca_half': 0.641,

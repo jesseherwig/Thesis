@@ -2,10 +2,10 @@ from launcher import tester
 
 import config
 
-output_files = '1mil_80_2'
+output_files = '50k_365'
 
-config.citizen_source = 'citizens.txt'
-config.links_source = 'links_parallel.txt'
+config.citizen_source = 'citizens_50k.txt'
+config.links_source = 'links_50k.txt'
 
 runtime = 80
 

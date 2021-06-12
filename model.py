@@ -460,7 +460,7 @@ class Population:
                 self.vaccine_totals[vac + '_full'] += 1
 
         try:
-            toVaccinate = sample(self.vaccinated['none'], config.parameters['daily_vac_number'])
+            toVaccinate = sample(self.vaccinated['none'], round(config.parameters['daily_vac_number']/100*self.size))
         except ValueError:
             toVaccinate = self.vaccinated['none'].copy()
         for citizen in toVaccinate:
@@ -471,10 +471,10 @@ class Population:
             self.vaccine_totals[vac[0] + '_half'] += 1
 
         # Testing
-        testNumber = randrange(config.parameters['tests']['min'], config.parameters['tests']['max']) \
-                     + round(self.last_infected * (self.size / 100))
-        if testNumber > config.parameters['tests']['extreme_max']:
-            testNumber = config.parameters['tests']['extreme_max']
+        testNumber = int((randrange(config.parameters['tests']['min'], config.parameters['tests']['max'])/100 * self.size) \
+                     + round(self.last_infected * (self.size / 100)))
+        if testNumber > config.parameters['tests']['extreme_max']/100 * self.size:
+            testNumber = int(config.parameters['tests']['extreme_max']/100 * self.size)
         self.last_infected = infected
         toTest = sample(self.citizens, testNumber)
         for citizen in toTest:
