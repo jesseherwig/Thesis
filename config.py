@@ -43,4 +43,4 @@ day = 0
 citizen_source = 'citizens_50k.txt'
 links_source = 'links_50k.txt'
 
-generate_vaccine = 'random'
+generate_vaccine = None
