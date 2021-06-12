@@ -5,7 +5,7 @@ from model import Population
 import config
 
 
-def tester(file_name, runtime):
+def tester(file_name, runtime, initial_infected):
     population = Population()
     population.load_sample()
     output = ''
@@ -16,7 +16,7 @@ def tester(file_name, runtime):
                          'AstraZeneca Half Dose', 'AstraZeneca Full Dose',
                          'Pfizer Half Dose', 'Pfizer Full Dose',
                          'Moderna Half Dose', 'Moderna Full Dose', ])
-    population.setInfected(50)
+    population.setInfected(initial_infected)
     while config.day < runtime:
         config.day += 1
         print(config.day)

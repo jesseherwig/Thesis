@@ -43,4 +43,5 @@ day = 0
 citizen_source = 'citizens_50k.txt'
 links_source = 'links_50k.txt'
 
+#modify to select whether citizens will already have astraZeneca, pfizer, moderna or random vaccine
 generate_vaccine = None

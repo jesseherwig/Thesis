@@ -4,13 +4,11 @@ import config
 
 import multiprocessing as mp
 
-
-
 from random import sample, choice, choices, randrange
 from random import random as rand
 
 
-def try_death(age,sex):
+def try_death(age, sex):
     if age < 60:
         i = '<60'
     elif age >= 80:
@@ -25,6 +23,7 @@ def try_death(age,sex):
     else:
         return False
 
+
 def try_hospital(age):
     if age < 5:
         i = '0-4'
@@ -36,7 +35,7 @@ def try_hospital(age):
         i = '18-49'
     else:
         i = '50-64'
-    if rand() < config.parameters['hospitalisationFactor'][i]/100000:
+    if rand() < config.parameters['hospitalisationFactor'][i] / 100000:
         return True
     else:
         return False
@@ -328,6 +327,7 @@ def select_vaccine(citizen: Citizen):
     else:
         return choices(('pfizer', 'moderna'), weights=[51, 50], k=1)
 
+
 def load_citizens(line):
     if line != '':
         line = line.strip()
@@ -337,6 +337,7 @@ def load_citizens(line):
         else:
             return Citizen(int(age), sex)
     return None
+
 
 def load_links(line):
     if line != '':
@@ -471,7 +472,7 @@ class Population:
             if state == 'recovered' or state == 'deceased':
                 self.citizens.remove(citizen)
 
-        ## Vaccinations
+        # Vaccinations
         for citizen in self.vaccinated['half']:
             if citizen.advanceVaccine():
                 vac = citizen.getVaccine()
@@ -481,7 +482,8 @@ class Population:
                 self.vaccine_totals[vac + '_full'] += 1
 
         try:
-            toVaccinate = sample(self.vaccinated['none'], round(config.parameters['daily_vac_number']/100*self.size))
+            toVaccinate = sample(self.vaccinated['none'],
+                                 round(config.parameters['daily_vac_number'] / 100 * self.size))
         except ValueError:
             toVaccinate = self.vaccinated['none'].copy()
         for citizen in toVaccinate:
@@ -492,10 +494,11 @@ class Population:
             self.vaccine_totals[vac[0] + '_half'] += 1
 
         # Testing
-        testNumber = int((randrange(config.parameters['tests']['min'], config.parameters['tests']['max'])/100 * self.size) \
-                     + round(self.last_infected * (self.size / 100)))
-        if testNumber > config.parameters['tests']['extreme_max']/100 * self.size:
-            testNumber = int(config.parameters['tests']['extreme_max']/100 * self.size)
+        testNumber = int(
+            (randrange(config.parameters['tests']['min'], config.parameters['tests']['max']) / 100 * self.size) \
+            + round(self.last_infected * (self.size / 100)))
+        if testNumber > config.parameters['tests']['extreme_max'] / 100 * self.size:
+            testNumber = int(config.parameters['tests']['extreme_max'] / 100 * self.size)
         self.last_infected = infected
         toTest = sample(self.citizens, testNumber)
         for citizen in toTest:

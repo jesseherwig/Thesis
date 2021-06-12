@@ -4,11 +4,11 @@ import config
 
 import os
 
-output_files = '50_all_az'
+output_files = '50_all_none'
 
 
-config.citizen_source = 'citizens_10000.txt'
-config.links_source = 'links_1000.txt'
+config.citizen_source = 'citizens_50k.txt'
+config.links_source = 'links_50k.txt'
 runtime = 365
 
 if __name__ == '__main__':
@@ -21,4 +21,4 @@ if __name__ == '__main__':
     with open(output_files + 'count.txt', 'w') as f:
         f.write(str(count))
     output_files += str(count)
-    tester(output_files, runtime)
+    tester(output_files, runtime, 50)
