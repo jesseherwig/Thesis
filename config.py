@@ -23,7 +23,7 @@ parameters = {
     'contagiousTime': 7,
     'hospitalisedRecovery': 19,
     'isolationTime': 14,
-    'daily_vac_number': 10,
+    'daily_vac_number': 0,
     'tests': dict(max=3, min=1, extreme_max=15),
     'r': {'min': 2,
           'max': 6},
