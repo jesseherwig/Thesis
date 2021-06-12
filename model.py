@@ -333,7 +333,7 @@ def load_citizens(line):
         line = line.strip()
         sex, age, *vaccine = line.split(',')
         if vaccine:
-            return Citizen(int(age), sex, vaccine=vaccine)
+            return Citizen(int(age), sex, vaccine=vaccine[0])
         else:
             return Citizen(int(age), sex)
     return None
@@ -399,7 +399,7 @@ class Population:
             print('done')
             p.close()
             p.join()
-        with open('links_parallel.txt', 'r') as f:
+        with open(config.links_source, 'r') as f:
             lines = f.readlines()
             for line in lines:
                 if line != '':
@@ -416,7 +416,11 @@ class Population:
         state = citizen.getState()
         self.map[state].append(citizen)
         self.totals[state] += 1
-        self.vaccinated[citizen.getVaccine()].append(citizen)
+        try:
+            self.vaccinated[citizen.getVaccine()].append(citizen)
+        except KeyError:
+            self.vaccinated['full'].append(citizen)
+            self.vaccine_totals[citizen.getVaccine() + '_full'] += 1
 
     def addCitizenList(self, alist):
         for citizen in alist:

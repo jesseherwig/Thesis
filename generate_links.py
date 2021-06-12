@@ -1,4 +1,4 @@
-from config import size as number
+import config
 
 import multiprocessing
 from random import choices, randrange, random
@@ -19,7 +19,7 @@ def generate_links(citizen_num):
 
 if __name__ == '__main__':
     with multiprocessing.Pool(multiprocessing.cpu_count()) as p:
-        string = p.map(generate_links, range(number))
-    with open('links_1000.txt', 'w') as f:
+        string = p.map(generate_links, range(config.parameters['size']))
+    with open(config.links_source, 'w') as f:
         f.writelines(string)
         f.close()
