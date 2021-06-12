@@ -7,8 +7,8 @@ import os
 output_files = '50_all_az'
 
 
-config.citizen_source = 'citizens_10000.txt'
-config.links_source = 'links_1000.txt'
+config.citizen_source = 'citizens_50k_vaccinated_az.txt'
+config.links_source = 'links_50k.txt'
 runtime = 365
 
 if __name__ == '__main__':

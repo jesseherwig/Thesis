@@ -40,7 +40,7 @@ dose_space = {'astraZeneca': 90,
 
 day = 0
 
-citizen_source = 'citizens_10k_vaccinated_az.txt'
-links_source = 'links_.txt'
+citizen_source = 'citizens_50k_vaccinated_moderna.txt'
+links_source = 'links_50k.txt'
 
-generate_vaccine = 'astraZeneca'
+generate_vaccine = 'moderna'

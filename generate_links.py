@@ -6,7 +6,7 @@ from random import choices, randrange, random
 
 def generate_links(citizen_num):
     string = ''
-    available = list(range(0, number))
+    available = list(range(0, config.parameters['size']))
     available.remove(citizen_num)
     destinations = choices(available, k=randrange(0, 100))
     for destination in destinations:
