@@ -12,7 +12,8 @@ parameters = {
               'min': 1,
               'extreme_max': 100},
     'r': {'min': 2,
-         'max': 6}
+         'max': 6},
+    'superspreaders': 1
 }
 vaccines = {'astraZeneca_half': 0.641,
             'astraZeneca_full': 0.704,

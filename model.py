@@ -1,3 +1,5 @@
+import csv
+
 import config
 
 
@@ -28,7 +30,7 @@ class Citizen:
         self.toIsolate = False
         self.unisolatedState = None
         self.chance = 0.05
-        self.max_infected = randrange(config.r_min, config.r_max)
+        self.max_infected = randrange(config.parameters['r']['min'], config.parameters['r']['max'])
         self.num_infected = 0
 
 
@@ -109,6 +111,9 @@ class Citizen:
 
     def getIsolation_date(self):
         return self.isolation_date or False
+
+    def setMaxInfected(self, num):
+        self.max_infected = num
 
     def increment_infected_num(self):
         self.num_infected += 1
@@ -315,6 +320,15 @@ class Population:
             'recovered': [],
             'isolated': []
         }
+        self.totals = {
+            'incubating': 0,
+            'susceptible': 0,
+            'contagious': 0,
+            'hospitalised': 0,
+            'deceased': 0,
+            'recovered': 0,
+            'isolated': 0
+        }
         self.vaccine_totals = {
             'astraZeneca_half': 0,
             'astraZeneca_full': 0,
@@ -328,7 +342,7 @@ class Population:
 
     def load_sample(self):
 
-        with open('citizens.txt', 'r') as f:
+        with open('citizens_10000.txt', 'r') as f:
             print('load citizens')
             lines = f.readlines()
             self.size = len(lines)
@@ -339,7 +353,7 @@ class Population:
                     self.addCitizen(Citizen(int(age), sex))
             f.close()
         print('done')
-        with open('links_parallel.txt', 'r') as f:
+        with open('links_1000.txt', 'r') as f:
             lines = f.readlines()
             for line in lines:
                 if line != '':
@@ -347,11 +361,16 @@ class Population:
                     (source, destination, weight) = line.split(',')
                     self.addLink(Link(self.citizens[int(source)], self.citizens[int(destination)], float(weight)))
         print('Done links')
+        superspreaders = sample(self.citizens, round(config.parameters['superspreaders']/100*self.size))
+        for citizen in superspreaders:
+            citizen.setMaxInfected(len(citizen.getForwardLinks()))
 
     def addCitizen(self, citizen: Citizen):
         self.citizens.append(citizen)
-        self.map[citizen.getState()].append(citizen)
-        self.vaccinated['none'].append(citizen)
+        state = citizen.getState()
+        self.map[state].append(citizen)
+        self.totals[state] += 1
+        self.vaccinated[citizen.getVaccine()].append(citizen)
 
     def addCitizenList(self, alist):
         for citizen in alist:
@@ -371,6 +390,8 @@ class Population:
         for citizen in selected:
             self.map['susceptible'].remove(citizen)
             self.map['incubating'].append(citizen)
+            self.totals['incubating'] += 1
+            self.totals['susceptible'] -= 1
             citizen.infect()
         self.infected += number
 
@@ -385,13 +406,18 @@ class Population:
                         self.infected += 1
                         self.map['incubating'].append(infectee)
                         self.map['susceptible'].remove(infectee)
-                        infected +=1
-                    if not citizen.check_max_not_exceeded():
+                        self.totals['incubating'] += 1
+                        self.totals['susceptible'] -= 1
+                        infected += 1
+                    if not citizen.check_max_not_exceeded() or rand() > 0.5:
                         break
             state = citizen.advanceInfection()
             if old_state != state:
                 self.map[old_state].remove(citizen)
                 self.map[state].append(citizen)
+                if old_state != 'isolated' and state != 'isolated':
+                    self.totals[old_state] -= 1
+                    self.totals[state] += 1
             if state == 'recovered' or state == 'deceased':
                 self.citizens.remove(citizen)
 
@@ -418,8 +444,8 @@ class Population:
         # Testing
         testNumber = randrange(config.parameters['tests']['min'], config.parameters['tests']['max']) \
                      + round(self.last_infected*(self.size/100))
-        if testNumber > config.parameters['tests']['abs_max']:
-            testNumber = config.parameters['tests']['abs_max']
+        if testNumber > config.parameters['tests']['extreme_max']:
+            testNumber = config.parameters['tests']['extreme_max']
         self.last_infected = infected
         toTest = sample(self.citizens, testNumber)
         for citizen in toTest:
@@ -435,34 +461,32 @@ class Population:
             if citizen.rollInfection():
                 self.map['susceptible'].remove(citizen)
                 self.map['incubating'].append(citizen)
+                self.infected += 1
+                self.totals['incubating'] += 1
+                self.totals['susceptible'] -= 1
 
-    def print_stats(self):
-        print('Day: ', config.day)
-        print('Citizens: ', len(self.citizens))
-        print('Total Infections: ', len(self.infected))
-        print('-----States-----')
-        print('Susceptible: ', len(self.map['susceptible']))
-        print('Incubating: ', len(self.map['incubating']))
-        print('Contagious: ', len(self.map['contagious']))
-        print('Recovered: ', len(self.map['recovered']))
-        print('Deceased: ', len(self.map['deceased']))
-        print('Hospitalised: ', len(self.map['hospitalised']))
-        print('Isolated: ', len(self.map['isolated']))
-        print('Vaccines: ')
-        print('-------------------------------')
+    def csv_stats(self, csv_path):
+        with open(csv_path, 'a', newline='') as f:
+            writer = csv.writer(f)
+            writer.writerow([config.day, self.infected, self.totals['susceptible'],
+                             self.totals['incubating'], self.totals['contagious'],
+                             self.totals['recovered'], self.totals['deceased'],
+                             self.totals['hospitalised'], len(self.map['isolated']),
+                             self.vaccine_totals['astraZeneca_half'], self.vaccine_totals['astraZeneca_full'],
+                             self.vaccine_totals['pfizer_half'], self.vaccine_totals['pfizer_full'],
+                             self.vaccine_totals['moderna_half'], self.vaccine_totals['moderna_full']
+                             ])
 
     def string_stats(self):
         stats = '\nDay: ' + str(config.day) + '\nCitizens: ' \
-                + str(self.size) + '\nTotal Infections: ' + str(
-            self.infected) \
-                + '\n-----States-----' + '\nSusceptible: ' + str(len(self.map['susceptible'])) \
-                + '\nIncubating: ' + str(len(self.map['incubating'])) + '\nContagious: ' \
-                + str(len(self.map['contagious'])) + '\nRecovered: ' + str(len(self.map['recovered'])) \
-                + '\nDeceased: ' + str(len(self.map['deceased'])) + '\nHospitalised: ' \
-                + str(len(self.map['hospitalised'])) + '\nIsolated:  ' \
-                + str(len(self.map['isolated'])) \
-                + '\n-------------------------------' \
-                + '\nVaccines:\nAstraZeneca: \nHalf: ' + str(self.vaccine_totals['astraZeneca_half']) \
+                + str(self.size) + '\nTotal Infections: ' + str(self.infected) \
+                + '\n-----States-----' + '\nSusceptible: ' + str(self.totals['susceptible']) \
+                + '\nIncubating: ' + str(self.totals['incubating']) + '\nContagious: ' \
+                + str(self.totals['contagious']) + '\nRecovered: ' + str(self.totals['recovered']) \
+                + '\nDeceased: ' + str(self.totals['deceased']) + '\nHospitalised: ' \
+                + str(self.totals['hospitalised']) + '\n--Isolated: ' + str(len(self.map['isolated'])) \
+                + ' --\n----Vaccines----' + '\nAstraZeneca: \nHalf: ' \
+                + str(self.vaccine_totals['astraZeneca_half']) \
                 + '  Full: ' + str(self.vaccine_totals['astraZeneca_full']) \
                 + '\nPfizer: \nHalf: ' + str(self.vaccine_totals['pfizer_half']) \
                 + '  Full: ' + str(self.vaccine_totals['pfizer_full']) \
