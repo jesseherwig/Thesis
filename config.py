@@ -40,7 +40,7 @@ dose_space = {'astraZeneca': 90,
 
 day = 0
 
-citizen_source = 'citizens_50k_vaccinated_random.txt'
+citizen_source = 'citizens_50k.txt'
 links_source = 'links_50k.txt'
 
 generate_vaccine = 'random'
