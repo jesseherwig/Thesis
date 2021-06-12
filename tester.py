@@ -4,11 +4,11 @@ import config
 
 import os
 
-output_files = '50_all_none'
+output_files = '10K_all_none'
 
 
-config.citizen_source = 'citizens_50k.txt'
-config.links_source = 'links_50k.txt'
+config.citizen_source = 'citizens_100k.txt'
+config.links_source = 'links_100k.txt'
 runtime = 365
 
 if __name__ == '__main__':

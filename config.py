@@ -1,5 +1,5 @@
 parameters = {
-    'size': 50000,
+    'size': 100000,
     'hospitalisationFactor': {
         '0-4': 0.3,
         '5-17': 0.1,
@@ -40,8 +40,8 @@ dose_space = {'astraZeneca': 90,
 
 day = 0
 
-citizen_source = 'citizens_50k.txt'
-links_source = 'links_50k.txt'
+citizen_source = 'citizens_100k.txt'
+links_source = 'links_100k.txt'
 
 #modify to select whether citizens will already have astraZeneca, pfizer, moderna or random vaccine
 generate_vaccine = None
