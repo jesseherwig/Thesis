@@ -10,6 +10,7 @@ if __name__ == "__main__":
     output = ''
     population.setInfected(50)
     while config.day < 365:
+        print(config.day)
         population.advanceTime()
         #population.print_stats()
         output += population.string_stats()

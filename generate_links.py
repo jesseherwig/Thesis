@@ -20,6 +20,6 @@ def generate_links(citizen_num):
 if __name__ == '__main__':
     with multiprocessing.Pool(multiprocessing.cpu_count()) as p:
         string = p.map(generate_links, range(number))
-    with open('links_parallel.txt', 'w') as f:
+    with open('links_1000.txt', 'w') as f:
         f.writelines(string)
         f.close()

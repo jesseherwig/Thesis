@@ -11,7 +11,7 @@ parameters = {
     'tests': {'max': 3 ,
               'min': 1,
               'extreme_max': 100},
-    'r':{'min': 2,
+    'r': {'min': 2,
          'max': 6}
 }
 vaccines = {'astraZeneca_half': 0.641,

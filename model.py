@@ -1,5 +1,6 @@
 import config
 
+
 def chain(*lists):
     for alist in lists:
         for element in alist:
@@ -8,7 +9,6 @@ def chain(*lists):
 
 from random import sample, choice, choices, randrange
 from random import random as rand
-
 
 
 class Citizen:
@@ -109,7 +109,7 @@ class Citizen:
 
     def getIsolation_date(self):
         return self.isolation_date or False
-    
+
     def increment_infected_num(self):
         self.num_infected += 1
 
@@ -125,15 +125,25 @@ class Citizen:
         for link in self.backLinks:
             link.setStatus(False)
         self.isolation_date = config.day
-        self.unisolatedState = self.state
+        if not self.unisolatedState:
+            self.unisolatedState = self.state
         self.toIsolate = True
+
+    def unisolate(self):
+        for link in self.forwardLinks:
+            dest: Citizen = link.getDestination()
+            if dest.getState() != 'isolated':
+                link.setStatus(True)
+        for link in self.backLinks:
+            source: Citizen = link.getSource()
+            if source.getState() != 'isolated':
+                link.setStatus(True)
 
     def isolateContacts(self):
         for link in self.forwardLinks:
             if link.weight > 0.5:
                 dest: Citizen = link.getDestination()
                 dest.isolate()
-
 
     def death(self):
         self.state = 'deceased'
@@ -152,7 +162,7 @@ class Citizen:
             return method()
 
     def susceptible(self):
-        pass
+        return self.state
 
     def incubating(self):
         if config.day - self.infection_date == config.parameters['contagiousTime']:
@@ -194,13 +204,14 @@ class Citizen:
     def isolated(self):
         if config.day - self.isolation_date >= config.parameters['isolationTime']:
             self.state = self.unisolatedState
+            self.unisolate()
         return self.state
 
     def recovered(self):
-        pass
+        return self.state
 
     def deceased(self):
-        pass
+        return self.state
 
     def vaccinate(self, vaccine):
         self.vaccination_date = config.day
@@ -217,9 +228,8 @@ class Citizen:
         if rand() > self.immunity:
             self.infect()
             return True
-        else: return False
-
-
+        else:
+            return False
 
 
 class Link:
@@ -277,7 +287,6 @@ class Link:
         return None
 
 
-
 def select_vaccine(citizen: Citizen):
     age = citizen.getAge()
     if age >= 50:
@@ -291,7 +300,7 @@ class Population:
     def __init__(self):
         self.citizens = []
         self.links = []
-        self.infected = []
+        self.infected = 0
         self.vaccinated = {
             'none': [],
             'half': [],
@@ -315,13 +324,14 @@ class Population:
             'moderna_full': 0,
         }
         self.last_infected = 0
-
+        self.size = 0
 
     def load_sample(self):
 
         with open('citizens.txt', 'r') as f:
             print('load citizens')
             lines = f.readlines()
+            self.size = len(lines)
             for line in lines:
                 if line != '':
                     line = line.strip()
@@ -334,9 +344,8 @@ class Population:
             for line in lines:
                 if line != '':
                     line = line.strip()
-                    print(line)
                     (source, destination, weight) = line.split(',')
-                    self.addLink(Link(self.citizens[int(source)],self.citizens[int(destination)], float(weight)))
+                    self.addLink(Link(self.citizens[int(source)], self.citizens[int(destination)], float(weight)))
         print('Done links')
 
     def addCitizen(self, citizen: Citizen):
@@ -361,31 +370,30 @@ class Population:
         selected = sample(self.map['susceptible'], number)
         for citizen in selected:
             self.map['susceptible'].remove(citizen)
-            self.infected.append(citizen)
             self.map['incubating'].append(citizen)
             citizen.infect()
+        self.infected += number
 
     def advanceTime(self):
         infected = 0
-        for citizen in self.infected:
+        for citizen in self.citizens:
             old_state = citizen.getState()
             if old_state == 'contagious' and citizen.check_max_not_exceeded():
                 for link in citizen.getForwardLinks():
                     if link.rollInfection():
                         infectee: Citizen = link.getDestination()
-                        self.infected.append(infectee)
+                        self.infected += 1
                         self.map['incubating'].append(infectee)
                         self.map['susceptible'].remove(infectee)
                         infected +=1
                     if not citizen.check_max_not_exceeded():
                         break
-            citizen.advanceInfection()
-            state = citizen.getState()
+            state = citizen.advanceInfection()
             if old_state != state:
                 self.map[old_state].remove(citizen)
                 self.map[state].append(citizen)
             if state == 'recovered' or state == 'deceased':
-                self.infected.remove(citizen)
+                self.citizens.remove(citizen)
 
         ## Vaccinations
         for citizen in self.vaccinated['half']:
@@ -407,13 +415,13 @@ class Population:
             self.vaccinated['half'].append(citizen)
             self.vaccine_totals[vac[0] + '_half'] += 1
 
-        #Testing
+        # Testing
         testNumber = randrange(config.parameters['tests']['min'], config.parameters['tests']['max']) \
                      + round(self.last_infected*(self.size/100))
         if testNumber > config.parameters['tests']['abs_max']:
-            testNumber > config.parameters['tests']['abs_max']
+            testNumber = config.parameters['tests']['abs_max']
         self.last_infected = infected
-        toTest = sample(self.citizens, )
+        toTest = sample(self.citizens, testNumber)
         for citizen in toTest:
             state = citizen.getState()
             if state in ['contagious', 'incubating']:
@@ -422,13 +430,11 @@ class Population:
                 self.map[state].remove(citizen)
                 citizen.setState('isolated')
                 self.map['isolated'].append(citizen)
-        if rand() < 0.05:
+        if rand() < 0.05 and len(self.map['susceptible']) > 0:
             citizen = choice(self.map['susceptible'])
             if citizen.rollInfection():
                 self.map['susceptible'].remove(citizen)
                 self.map['incubating'].append(citizen)
-                self.infected.append(citizen)
-
 
     def print_stats(self):
         print('Day: ', config.day)
@@ -447,7 +453,8 @@ class Population:
 
     def string_stats(self):
         stats = '\nDay: ' + str(config.day) + '\nCitizens: ' \
-                + str(len(self.citizens)) + '\nTotal Infections: ' + str(len(self.infected) + len(self.map['recovered']) + len(self.map['deceased'])) \
+                + str(self.size) + '\nTotal Infections: ' + str(
+            self.infected) \
                 + '\n-----States-----' + '\nSusceptible: ' + str(len(self.map['susceptible'])) \
                 + '\nIncubating: ' + str(len(self.map['incubating'])) + '\nContagious: ' \
                 + str(len(self.map['contagious'])) + '\nRecovered: ' + str(len(self.map['recovered'])) \
