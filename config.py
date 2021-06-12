@@ -1,4 +1,5 @@
 parameters = {
+    'size': 1000000,
     'hospitalisationFactor' : 0.1,
     'deathFactor': 0.1 ,
     'globalInfectionFactor': 1,
@@ -8,7 +9,10 @@ parameters = {
     'isolationTime': 14,
     'daily_vac_number': 10,
     'tests': {'max': 3 ,
-              'min': 1}
+              'min': 1,
+              'extreme_max': 100},
+    'r':{'min': 2,
+         'max': 6}
 }
 vaccines = {'astraZeneca_half': 0.641,
             'astraZeneca_full': 0.704,
@@ -21,5 +25,3 @@ dose_space = {'astraZeneca': 90,
               'moderna': 21}
 
 day = 1
-
-size = 1000000

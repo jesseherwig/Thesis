@@ -28,6 +28,9 @@ class Citizen:
         self.toIsolate = False
         self.unisolatedState = None
         self.chance = 0.05
+        self.max_infected = randrange(config.r_min, config.r_max)
+        self.num_infected = 0
+
 
     def addForwardLink(self, link):
         assert isinstance(link, Link)
@@ -55,6 +58,12 @@ class Citizen:
 
     def getForwardLinks(self):
         return self.forwardLinks
+
+    def check_max_not_exceeded(self):
+        if self.num_infected > self.max_infected:
+            return False
+        else:
+            return True
 
     def setState(self, state):
         self.state = state
@@ -100,6 +109,9 @@ class Citizen:
 
     def getIsolation_date(self):
         return self.isolation_date or False
+    
+    def increment_infected_num(self):
+        self.num_infected += 1
 
     def infect(self, chance=None):
         if self.state == 'susceptible':
@@ -251,7 +263,8 @@ class Link:
 
     def rollInfection(self, chance=None):
         if self.status:
-            if self.destination.getState() == 'susceptible':
+            state = self.destination.getState()
+            if state == 'susceptible':
                 immunityFactor = self.destination.getImmunity()
                 mitigationFactor = self.source.getMitigationFactor()
 
@@ -259,6 +272,7 @@ class Link:
                     if rand() > immunityFactor:
                         if rand() > mitigationFactor:
                             self.destination.infect(chance or None)
+                            self.source.increment_infected_num()
                             return self.destination
         return None
 
@@ -300,6 +314,8 @@ class Population:
             'moderna_half': 0,
             'moderna_full': 0,
         }
+        self.last_infected = 0
+
 
     def load_sample(self):
 
@@ -350,15 +366,19 @@ class Population:
             citizen.infect()
 
     def advanceTime(self):
+        infected = 0
         for citizen in self.infected:
             old_state = citizen.getState()
-            if old_state == 'contagious':
+            if old_state == 'contagious' and citizen.check_max_not_exceeded():
                 for link in citizen.getForwardLinks():
                     if link.rollInfection():
                         infectee: Citizen = link.getDestination()
                         self.infected.append(infectee)
                         self.map['incubating'].append(infectee)
                         self.map['susceptible'].remove(infectee)
+                        infected +=1
+                    if not citizen.check_max_not_exceeded():
+                        break
             citizen.advanceInfection()
             state = citizen.getState()
             if old_state != state:
@@ -388,7 +408,12 @@ class Population:
             self.vaccine_totals[vac[0] + '_half'] += 1
 
         #Testing
-        toTest = sample(self.citizens, randrange(config.parameters['tests']['min'], config.parameters['tests']['max']))
+        testNumber = randrange(config.parameters['tests']['min'], config.parameters['tests']['max']) \
+                     + round(self.last_infected*(self.size/100))
+        if testNumber > config.parameters['tests']['abs_max']:
+            testNumber > config.parameters['tests']['abs_max']
+        self.last_infected = infected
+        toTest = sample(self.citizens, )
         for citizen in toTest:
             state = citizen.getState()
             if state in ['contagious', 'incubating']:
