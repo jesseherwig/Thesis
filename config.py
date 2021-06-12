@@ -6,9 +6,9 @@ parameters = {
     'contagiousTime': 7,
     'hospitalisedRecovery': 19,
     'isolationTime': 14,
-    'daily_vac_number': 100,
-    'tests': {'max': 3,
-              'min': 1}
+    'daily_vac_number': 3763,
+    'tests': {'max': 70000,
+              'min': 1000}
 }
 vaccines = {'astraZeneca_half': 0.641,
             'astraZeneca_full': 0.704,
