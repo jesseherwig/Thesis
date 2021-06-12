@@ -4,11 +4,11 @@ import config
 
 import os
 
-output_files = '50_all_pfizer'
+output_files = '100k_all_pfizer'
 
 
-config.citizen_source = 'citizens_50k_vaccinated_pfizer.txt'
-config.links_source = 'links_50k.txt'
+config.citizen_source = 'citizens_100k_vaccinated_pfizer.txt'
+config.links_source = 'links_100k.txt'
 runtime = 365
 
 if __name__ == '__main__':

@@ -40,8 +40,8 @@ dose_space = {'astraZeneca': 90,
 
 day = 0
 
-citizen_source = 'citizens_100k.txt'
-links_source = 'links_100k.txt'
+citizen_source = 'citizens_500k.txt'
+links_source = 'links_500k.txt'
 
 #modify to select whether citizens will already have astraZeneca, pfizer, moderna or random vaccine
 generate_vaccine = None
